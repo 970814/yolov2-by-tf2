@@ -72,9 +72,29 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
    3. `[4:5]` 存储了对象的类别`class`，范围在`0～79`
       - 可以使用`one_hot`函数转换成相应的`softmax`标签
     
-#### Loss函数计算
+---
 
+#### Loss函数计算
 
 <img width="633" alt="loss" src="https://user-images.githubusercontent.com/19931702/112639316-15a21f00-8e7b-11eb-9115-01b1a25cd96f.png">
 
 
+---
+
+上述表达式中`detectors_mask` 前面提到过
+
+
+1. `object_detections`
+
+`object_detections(i,j,a)` 为`True`，表示该位置预测框与一个真实对象框很吻合(具体是**IOU**>_threshold=0.6_)
+，此时即使该位置本不应存在对象及`detectors_mask(i,j,a)=False`也不做`noobj`置信度loss计算。
+一方面为了减少负例，另外一方面是网络在本不应该包含的位置输出了较为吻合的锚框，
+仍然可以通过非最大值抑制算法滤去。这通常发生在一个格子中的多个锚框检测同一个对象的时候。
+
+---
+
+2. 有4个权重系数，这里实现上分别取值为`lambda_obj=5`、`lambda_noobj=1`、`lambda_coord=1`、`lambda_class=1`
+
+3. 字母`N`表示类别的数量，`yolov2`系统中是80
+
+---
