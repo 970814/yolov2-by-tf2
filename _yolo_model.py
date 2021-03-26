@@ -1,9 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras.layers as layers
-import os
 import numpy as np
-
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 class DarkNet(tf.keras.Model):

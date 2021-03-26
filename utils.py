@@ -2,9 +2,6 @@
 
 import numpy as np
 from PIL import Image
-import tensorflow.keras.backend as K
-from ignore import keras_yolo
-
 
 def parse_yolo_v2_model_weights(weight_shapes, weights_path):
     weights_file = open(weights_path, 'rb')
