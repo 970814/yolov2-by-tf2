@@ -74,6 +74,7 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
     
 #### Loss计算
 
+<img width="447" alt="loss function" src="https://user-images.githubusercontent.com/19931702/112607954-bcbf9000-8e54-11eb-9037-9e29753c036a.png">
 
 
 
