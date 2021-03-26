@@ -4,3 +4,4 @@ __pycache__/
 images/
 *.weights
 ignore/*
+yolov2_weights/*
