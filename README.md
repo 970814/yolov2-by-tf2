@@ -72,9 +72,8 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
    3. `[4:5]` 存储了对象的类别`class`，范围在`0～79`
       - 可以使用`one_hot`函数转换成相应的`softmax`标签
     
-#### Loss计算
+#### Loss函数计算
 
-<img width="447" alt="loss function" src="https://user-images.githubusercontent.com/19931702/112607954-bcbf9000-8e54-11eb-9037-9e29753c036a.png">
 
 
 
