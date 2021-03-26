@@ -87,14 +87,14 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 1. `object_detections`
 
 `object_detections(i,j,a)` 为`True`，表示该位置预测框与一个真实对象框很吻合(具体是**IOU**>_threshold=0.6_)
-，此时即使该位置本不应存在对象及`detectors_mask(i,j,a)=False`也不做`noobj`置信度loss计算。
+，此时即使该位置本不应存在对象及`detectors_mask(i,j,a)=False`也不做`noobj`置信度`loss`计算。
 一方面为了减少负例，另外一方面是网络在本不应该包含的位置输出了较为吻合的锚框，
 仍然可以通过非最大值抑制算法滤去。这通常发生在一个格子中的多个锚框检测同一个对象的时候。
 
 ---
 
-2. 有4个权重系数，这里实现上分别取值为`lambda_obj=5`、`lambda_noobj=1`、`lambda_coord=1`、`lambda_class=1`
+2. 有`4`个权重系数，这里实现上分别取值为`lambda_obj=5`、`lambda_noobj=1`、`lambda_coord=1`、`lambda_class=1`
 
-3. 字母`N`表示类别的数量，`yolov2`系统中是80
+3. 字母`N`表示类别的数量，`yolov2`系统中是`80`
 
 ---
