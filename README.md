@@ -3,7 +3,9 @@
 
 ---
 
-使用 **tensorflow2.0** 实现的 **yolo**_(you only look once)_ v2算法
+使用 **tensorflow2.0** 实现的 **YOLO**_(you only look once)_ v2算法
+
+_YOLO 是一个实时对象检测系统_
 
 ---
 
