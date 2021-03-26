@@ -5,7 +5,7 @@
 
 使用 **tensorflow2.0** 实现的 **YOLO**_(you only look once)_ v2算法
 
-_YOLO 是一个实时对象检测系统_
+_[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 
 ---
 
@@ -71,6 +71,9 @@ _YOLO 是一个实时对象检测系统_
       `(w,h) = log((p,q) / (anchorW,anchorH))`
    3. `[4:5]` 存储了对象的类别`class`，范围在`0～79`
       - 可以使用`one_hot`函数转换成相应的`softmax`标签
+    
+#### Loss计算
+
 
 
 
