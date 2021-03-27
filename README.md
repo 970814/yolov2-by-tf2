@@ -99,3 +99,7 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 3. 字母`N`表示类别的数量，`yolov2`系统中是`80`
 
 ---
+
+#### 随机梯度下降减少Loss值
+
+
