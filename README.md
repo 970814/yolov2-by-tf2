@@ -124,6 +124,19 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 
 <img width="533" alt="10" src="https://user-images.githubusercontent.com/19931702/112708779-f349e900-8eee-11eb-8eb7-c07633fc2fdf.png">
 
+---
+
+关于反向传播算法如何计算参数梯度的实现可以参考我的另外两个项目实现
+
+- [CNN](https://github.com/970814/convolutionNerualNetwork)
+- [MLP](https://github.com/970814/fcBpNerualNetwork)
+
+如果使用`tensorflow`框架，梯度计算将由框架自动完成，意味着我们只需要实现向前传播算法和损失函数，这是使用框架实现模型的一个极大好处。
+
+---
+
+
+
 
 
 
