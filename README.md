@@ -102,4 +102,28 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 
 #### 随机梯度下降减少Loss值
 
+<img width="326" alt="0" src="https://user-images.githubusercontent.com/19931702/112708294-16bf6480-8eec-11eb-9aa2-921b7315ce20.png">
+
+<img width="193" alt="1" src="https://user-images.githubusercontent.com/19931702/112708320-3a82aa80-8eec-11eb-998d-910442ba4f74.png">
+
+<img width="486" alt="2" src="https://user-images.githubusercontent.com/19931702/112708364-8897ae00-8eec-11eb-975a-79f1be00f910.png">
+
+<img width="336" alt="3" src="https://user-images.githubusercontent.com/19931702/112708396-c1d01e00-8eec-11eb-8332-6c2dfb9f91f3.png">
+
+<img width="625" alt="4" src="https://user-images.githubusercontent.com/19931702/112708408-dca29280-8eec-11eb-8f8f-c834180008d7.png">
+
+<img width="622" alt="5" src="https://user-images.githubusercontent.com/19931702/112708586-c77a3380-8eed-11eb-828a-7bd3f2e9c970.png">
+
+<img width="624" alt="6" src="https://user-images.githubusercontent.com/19931702/112708595-cfd26e80-8eed-11eb-8941-1e6ab651f603.png">
+
+<img width="482" alt="7" src="https://user-images.githubusercontent.com/19931702/112708684-6868ee80-8eee-11eb-8b52-088ee7f07c2f.png">
+
+<img width="624" alt="8" src="https://user-images.githubusercontent.com/19931702/112708689-774fa100-8eee-11eb-8871-004d08b42dc1.png">
+
+<img width="424" alt="9" src="https://user-images.githubusercontent.com/19931702/112708691-7a4a9180-8eee-11eb-90b2-906e3a6992dd.png">
+
+<img width="533" alt="10" src="https://user-images.githubusercontent.com/19931702/112708779-f349e900-8eee-11eb-8eb7-c07633fc2fdf.png">
+
+
+
 
