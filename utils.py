@@ -79,7 +79,7 @@ def preprocess_image(img_path, model_image_size):
     image_data /= 255.
     # 给数据添加一个新维度，数据量维度，得到1*608*608*3，是适配网络的格式
     image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
-    # 返回的image shape是(h, w)格式
+    # 返回的image shape是(h, w)格式, 图片可能是4通道，但是只考虑rgb通道
     return image, image_data[:, :, :, 0:3], tuple(reversed(image.size))
 
 
@@ -114,8 +114,9 @@ def read_class_name(path):
                 class_name.append(t)
     return class_name
 
+
 def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
-    font = ImageFont.truetype(font='./font/FiraMono-Medium.otf',
+    font = ImageFont.truetype(font='./font/SourceHanSansSC-Bold.otf',
                               size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
     thickness = (image.size[0] + image.size[1]) // 300
     for i, c in reversed(list(enumerate(out_classes))):
@@ -204,19 +205,17 @@ def non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxe
     # 分类进行非最大印制算法
     for i in range(len(unique_class.y)):
         box_index = tf.image.non_max_suppression(
-            classified_boxes[i], classified_scores[i], max_output_size=10, iou_threshold=threshold)
+            classified_boxes[i], classified_scores[i], max_output_size=30, iou_threshold=threshold)
         classified_res_score = tf.gather(classified_scores[i], box_index)
         classified_res_boxes = tf.gather(classified_boxes[i], box_index)
-        res_score.append(classified_res_score.numpy().tolist())
-        res_boxes.append(classified_res_boxes.numpy().tolist())
-        res_class.append(unique_class.y[i].numpy())
-    res_score = np.squeeze(res_score)
-    res_boxes = np.squeeze(res_boxes)
+        classified_res_class = tf.tile(unique_class.y[i:i + 1], tf.shape(box_index))
+        res_score.append(classified_res_score)
+        res_boxes.append(classified_res_boxes)
+        res_class.append(classified_res_class)
 
-    res_class_shape = np.shape(res_class)
-
-    res_score = np.reshape(res_score, res_class_shape)
-    res_boxes = np.reshape(res_boxes, [res_class_shape[0], 4])
+    res_score = tf.keras.backend.concatenate(res_score, axis=0)
+    res_boxes = tf.keras.backend.concatenate(res_boxes, axis=0)
+    res_class = tf.keras.backend.concatenate(res_class, axis=0)
     return res_class, res_score, res_boxes
 
 
@@ -304,3 +303,12 @@ def convert_filter_and_non_max_suppression(pred):
     对不同的类别应用一次非最大值印制算法
     '''
     return non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxes)
+
+
+def detect(image_data, model):
+    # image_data 数据维度为 608,608,3
+    # 进行向前传播算法
+    pred = model(image_data)
+    # 转换数据，过滤低得分框，各个类非最大值印制，得到网络最终的预测框
+    res_class, res_score, res_boxes = convert_filter_and_non_max_suppression(pred)
+    return res_class, res_score, res_boxes

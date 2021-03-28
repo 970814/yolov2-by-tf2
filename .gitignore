@@ -5,4 +5,4 @@ images/
 *.weights
 ignore/*
 yolov2_weights/*
-font/
+saved_model

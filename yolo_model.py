@@ -2,7 +2,15 @@ import tensorflow as tf
 import tensorflow.keras.layers as layers
 
 
+def compose3(conv2d, bn, activation):
+    return lambda x: activation(bn(conv2d(x)))
+
+
 class DarkNet(tf.keras.Model):
+    def darknetConv2d_bn_activation(self, kernel_size=None, filters=-1, use_bias=False, pre_lay_ch_cnt=-1):
+        return compose3(self.darknetConv2d(kernel_size, filters, use_bias, pre_lay_ch_cnt),
+                        layers.BatchNormalization(),
+                        tf.keras.layers.LeakyReLU(alpha=0.1))
 
     def darknetConv2d(self, kernel_size=None, filters=-1, use_bias=False, pre_lay_ch_cnt=-1):
         if kernel_size is None:
