@@ -1,6 +1,6 @@
 from yolo_model import DarkNet
 from utils import parse_yolo_v2_model_weights, preprocess_image, \
-    draw_boxes, read_class_name, generate_colors, detect
+    draw_boxes, read_class_name, generate_colors, detect,show_weights_shape
 import tensorflow as tf
 import numpy as np
 import os

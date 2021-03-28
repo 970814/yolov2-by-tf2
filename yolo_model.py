@@ -2,16 +2,7 @@ import tensorflow as tf
 import tensorflow.keras.layers as layers
 
 
-def compose3(conv2d, bn, activation):
-    return lambda x: activation(bn(conv2d(x)))
-
-
 class DarkNet(tf.keras.Model):
-    def darknetConv2d_bn_activation(self, kernel_size=None, filters=-1, use_bias=False, pre_lay_ch_cnt=-1):
-        return compose3(self.darknetConv2d(kernel_size, filters, use_bias, pre_lay_ch_cnt),
-                        layers.BatchNormalization(),
-                        tf.keras.layers.LeakyReLU(alpha=0.1))
-
     def darknetConv2d(self, kernel_size=None, filters=-1, use_bias=False, pre_lay_ch_cnt=-1):
         if kernel_size is None:
             kernel_size = [3, 3]
@@ -19,7 +10,6 @@ class DarkNet(tf.keras.Model):
         self.weight_shapes.append((kernel_size[0], kernel_size[1], pre_lay_ch_cnt, filters))
         return layers.Conv2D(
             kernel_initializer=None,
-            # weights=weights,
             kernel_size=kernel_size,
             filters=filters,
             padding='same',
@@ -33,7 +23,6 @@ class DarkNet(tf.keras.Model):
 
         self.weight_shapes = []
 
-        # DarknetConv2D_BN_Leaky(32, (3, 3))
         self.conv1 = self.darknetConv2d(
             filters=32,
             pre_lay_ch_cnt=3,
@@ -43,7 +32,6 @@ class DarkNet(tf.keras.Model):
         self.activation1 = tf.keras.layers.LeakyReLU(alpha=0.1)
         self.pool1 = layers.MaxPool2D(pool_size=[2, 2], strides=2)
 
-        # DarknetConv2D_BN_Leaky(64, (3, 3))
         self.conv2 = self.darknetConv2d(
             filters=64,
             pre_lay_ch_cnt=32
@@ -52,7 +40,6 @@ class DarkNet(tf.keras.Model):
         self.activation2 = tf.keras.layers.LeakyReLU(alpha=0.1)
         self.pool2 = layers.MaxPool2D(pool_size=[2, 2], strides=2)
 
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv3 = self.darknetConv2d(
             filters=128,
             pre_lay_ch_cnt=64
@@ -70,7 +57,6 @@ class DarkNet(tf.keras.Model):
            缩小到原来一半的计算量
         '''
 
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv4 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=64,
@@ -78,7 +64,6 @@ class DarkNet(tf.keras.Model):
         )
         self.bn4 = layers.BatchNormalization()
         self.activation4 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv5 = self.darknetConv2d(
             filters=128,
             pre_lay_ch_cnt=64
@@ -88,25 +73,12 @@ class DarkNet(tf.keras.Model):
 
         self.pool5 = layers.MaxPool2D(pool_size=[2, 2], strides=2)
 
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv6 = self.darknetConv2d(
             filters=256,
             pre_lay_ch_cnt=128
         )
         self.bn6 = layers.BatchNormalization()
         self.activation6 = tf.keras.layers.LeakyReLU(alpha=0.1)
-
-        '''
-           构建瓶颈层，减少计算量，参考https://www.bilibili.com/video/BV1F4411y7o7?p=17
-           n*n*256 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*3*3*256 = 3*3*256*256*n*n = 18*(128*256*n*n)
-           n*n*256 -> 1,1 -> n*n*128 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*1*1*256 + n*n*256*3*3*128 = 10*(128*256*n*n)
-           18*(128*256*n*n) / 10*(128*256*n*n) = 0.556
-           缩小到原来一半的计算量
-        '''
-
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv7 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=128,
@@ -114,7 +86,6 @@ class DarkNet(tf.keras.Model):
         )
         self.bn7 = layers.BatchNormalization()
         self.activation7 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv8 = self.darknetConv2d(
             filters=256,
             pre_lay_ch_cnt=128
@@ -131,17 +102,6 @@ class DarkNet(tf.keras.Model):
         self.bn9 = layers.BatchNormalization()
         self.activation9 = tf.keras.layers.LeakyReLU(alpha=0.1)
 
-        '''
-           构建瓶颈层，减少计算量，参考https://www.bilibili.com/video/BV1F4411y7o7?p=17
-           n*n*256 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*3*3*256 = 3*3*256*256*n*n = 18*(128*256*n*n)
-           n*n*256 -> 1,1 -> n*n*128 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*1*1*256 + n*n*256*3*3*128 = 10*(128*256*n*n)
-           18*(128*256*n*n) / 10*(128*256*n*n) = 0.556
-           缩小到原来一半的计算量
-        '''
-
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv10 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=256,
@@ -149,24 +109,13 @@ class DarkNet(tf.keras.Model):
         )
         self.bn10 = layers.BatchNormalization()
         self.activation10 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv11 = self.darknetConv2d(
             filters=512,
             pre_lay_ch_cnt=256
         )
         self.bn11 = layers.BatchNormalization()
         self.activation11 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        '''
-           构建瓶颈层，减少计算量，参考https://www.bilibili.com/video/BV1F4411y7o7?p=17
-           n*n*256 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*3*3*256 = 3*3*256*256*n*n = 18*(128*256*n*n)
-           n*n*256 -> 1,1 -> n*n*128 -> same,3,3 -> n*n*256
-           计算量 = n*n*128*1*1*256 + n*n*256*3*3*128 = 10*(128*256*n*n)
-           18*(128*256*n*n) / 10*(128*256*n*n) = 0.556
-           缩小到原来一半的计算量
-        '''
 
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv12 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=256,
@@ -174,7 +123,6 @@ class DarkNet(tf.keras.Model):
         )
         self.bn12 = layers.BatchNormalization()
         self.activation12 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv13 = self.darknetConv2d(
             filters=512,
             pre_lay_ch_cnt=256
@@ -184,7 +132,6 @@ class DarkNet(tf.keras.Model):
 
         self.pool13 = layers.MaxPool2D(pool_size=[2, 2], strides=2)
 
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv14 = self.darknetConv2d(
             filters=1024,
             pre_lay_ch_cnt=512
@@ -192,17 +139,6 @@ class DarkNet(tf.keras.Model):
         self.bn14 = layers.BatchNormalization()
         self.activation14 = tf.keras.layers.LeakyReLU(alpha=0.1)
 
-        '''
-           构建瓶颈层，减少计算量，参考https://www.bilibili.com/video/BV1F4411y7o7?p=17
-           n*n*128 -> same,3,3 -> n*n*128
-           计算量 = n*n*128*3*3*128 = 3*3*128*128*n*n = 18*(128*64*n*n)
-           n*n*128 -> 1,1 -> n*n*64 -> same,3,3 -> n*n*128
-           计算量 = n*n*64*1*1*128 + n*n*128*3*3*64 = 10*(128*64*n*n)
-           10*(128*64*n*n) / 18*(128*64*n*n) = 0.556
-           缩小到原来一半的计算量
-        '''
-
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv15 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=512,
@@ -210,7 +146,6 @@ class DarkNet(tf.keras.Model):
         )
         self.bn15 = layers.BatchNormalization()
         self.activation15 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv16 = self.darknetConv2d(
             filters=1024,
             pre_lay_ch_cnt=512
@@ -218,7 +153,6 @@ class DarkNet(tf.keras.Model):
         self.bn16 = layers.BatchNormalization()
         self.activation16 = tf.keras.layers.LeakyReLU(alpha=0.1)
 
-        # DarknetConv2D_BN_Leaky(64, (1, 1)),
         self.conv17 = self.darknetConv2d(
             kernel_size=[1, 1],
             filters=512,
@@ -226,7 +160,6 @@ class DarkNet(tf.keras.Model):
         )
         self.bn17 = layers.BatchNormalization()
         self.activation17 = tf.keras.layers.LeakyReLU(alpha=0.1)
-        # DarknetConv2D_BN_Leaky(128, (3, 3)),
         self.conv18 = self.darknetConv2d(
             filters=1024,
             pre_lay_ch_cnt=512
@@ -360,10 +293,13 @@ class DarkNet(tf.keras.Model):
         y = self.conv21(leaky_re_lu_13)
         y = self.bn21(y)
         y = self.activation21(y)
+
         y = self.lambda1(y)
         x = self.concatenate1([y, x])
+
         x = self.conv22(x)
         x = self.bn22(x)
         x = self.activation22(x)
+
         x = self.conv23(x)
         return x
