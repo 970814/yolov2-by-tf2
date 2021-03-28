@@ -87,10 +87,25 @@ box_high_scores = tf.boolean_mask(box_scores, obj_high_prob_mask)
 box_high_scores_class = tf.boolean_mask(box_class, obj_high_prob_mask)
 # N,19,19,5,4     N,19,19,5    ->  K,4
 high_scores_boxes = tf.boolean_mask(boxes, obj_high_prob_mask)
+'''
+1. 因为存在多个框同时检测同一个对象的可能，
+之所以会产生这个问题，是因为我们在训练网络的时候，对于本不该存在对象的(grid cell,anchor-box)位置,
+它却输出了一个很吻合(IOU>=0.6)人工标注的框,此时应该计算no-obj loss来惩罚网络,但我们忽略了,原因如下
+    
+    1.1 训练网络的时候，人工标注的对象是分配到一对(grid cell,anchor-box)中，然而一个单元格中包含多个anchor-box，
+    实际上如果存在一个目标形状和多个anchor-box都接近(IOU接近)，那么对象具体分配到哪一个anchor-box都是合理的，
+    因此网络在多个位置都输出了预测框也都是合理的，尽管我们标注的位置仍然只会选择一个最优IOU的(grid cell,anchor-box)位置，
+    因此我们可以放宽要求，如果在人工标注位置的附近网络也说存在对象，并且预测框和人工标注框很吻合，那么我们将既不惩罚也不激励网络，保持中立。
+    并且这些多余的预测结果可被非最大值印制算法滤去。这能保证网络具有优秀的识别能力和准确性。
+    另外一方面如果我们要求的输出非常严格，对这些地方进行 no-obj loss惩罚，这样会拥有太多的负例，因为一张图片，
+    网络将预测19*19*5=1805个框，通常人工标注的对象少于100个，那么负例将会是1705个，这可能导致网络最终学会了检测某个位置无对象。
 
-# 因为存在多个框同时检测同一个对象的可能，
-# 使用非最大值印制，当多个框同时检测同一个类别的同一个对象时，选择得分最高的框。
-# 也就是说需要对不同的类别应用一次非最大值印制算法
+    
+    
+2. 使用非最大值印制，当多个框同时检测同一个对象时，选择得分最高的框。
+对不同的类别应用一次非最大值印制算法
+'''
+
 box_index = tf.image.non_max_suppression(
     high_scores_boxes, box_high_scores, max_output_size=10, iou_threshold=0.1)
 # print(box_index)
