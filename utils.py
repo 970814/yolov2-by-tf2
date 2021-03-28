@@ -114,49 +114,15 @@ def read_class_name(path):
                 class_name.append(t)
     return class_name
 
-
-# def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
-#     font = ImageFont.truetype(font='./font/FiraMono-Medium.otf',
-#                               size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
-#     thickness = (image.size[0] + image.size[1]) // 300
-#     for i, c in reversed(list(enumerate(out_classes))):
-#         predicted_class = class_names[c]
-#         box = out_boxes[i]
-#         score = out_scores[i]
-#         label = '{} {:.2f}'.format(predicted_class, score)
-#         draw = ImageDraw.Draw(image)
-#         label_size = draw.textsize(label, font)
-#
-#         top, left, bottom, right = box
-#         top = max(0, np.floor(top + 0.5).astype('int32'))
-#         left = max(0, np.floor(left + 0.5).astype('int32'))
-#         bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-#         right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-#         print(label, (left, top), (right, bottom))
-#
-#         if top - label_size[1] >= 0:
-#             text_origin = np.array([left, top - label_size[1]])
-#         else:
-#             text_origin = np.array([left, top + 1])
-#
-#         # My kingdom for a good redistributable image drawing library.
-#         for i in range(thickness):
-#             draw.rectangle([left + i, top + i, right - i, bottom - i], outline=colors[c])
-#         draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=colors[c])
-#         draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-#         del draw
 def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
     font = ImageFont.truetype(font='./font/FiraMono-Medium.otf',
                               size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
     thickness = (image.size[0] + image.size[1]) // 300
-
     for i, c in reversed(list(enumerate(out_classes))):
         predicted_class = class_names[c]
         box = out_boxes[i]
         score = out_scores[i]
-
         label = '{} {:.2f}'.format(predicted_class, score)
-
         draw = ImageDraw.Draw(image)
         label_size = draw.textsize(label, font)
 
@@ -199,7 +165,7 @@ def generateXYOffset():
     ...  ...  ...
     h-1  h-1
 
-    更一般来讲是0...w-1重复h次 , (0...h-1)T 重复w次
+    更一般来讲是0...w-1往下重复h次 , (0...h-1)T 往右重复w次
     """
     w = 19
     h = 19
@@ -210,3 +176,131 @@ def generateXYOffset():
     B = np.expand_dims(B, axis=-1)
     C = np.concatenate([A, B], axis=-1)
     return C
+
+
+def non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxes, threshold=0.5):
+    unique_class = tf.unique(box_high_scores_class)
+    classified_scores = []
+    classified_boxes = []
+    for i in range(len(unique_class.y)):
+        p = []
+        q = []
+        index = 0
+        # 收集第i个类的所有相关数据
+        for j in unique_class.idx:
+            if i == j:
+                p.append(box_high_scores[index].numpy())
+                q.append(high_scores_boxes[index].numpy().tolist())
+            index += 1
+        # 加上有n个类别
+        # 维度是 n,?
+        classified_scores.append(p)
+        # 维度是 n,?,4
+        classified_boxes.append(q)
+    res_class = []
+    res_score = []
+    res_boxes = []
+
+    # 分类进行非最大印制算法
+    for i in range(len(unique_class.y)):
+        box_index = tf.image.non_max_suppression(
+            classified_boxes[i], classified_scores[i], max_output_size=10, iou_threshold=threshold)
+        classified_res_score = tf.gather(classified_scores[i], box_index)
+        classified_res_boxes = tf.gather(classified_boxes[i], box_index)
+        res_score.append(classified_res_score.numpy().tolist())
+        res_boxes.append(classified_res_boxes.numpy().tolist())
+        res_class.append(unique_class.y[i].numpy())
+    res_score = np.squeeze(res_score)
+    res_boxes = np.squeeze(res_boxes)
+
+    res_class_shape = np.shape(res_class)
+
+    res_score = np.reshape(res_score, res_class_shape)
+    res_boxes = np.reshape(res_boxes, [res_class_shape[0], 4])
+    return res_class, res_score, res_boxes
+
+
+# 转换数据，过滤低得分框，各个类非最大值印制，得到网络最终的预测框
+def convert_filter_and_non_max_suppression(pred):
+    # pred为网络输出，N,19,19,425
+    # N,19,19,5,85
+    predictions = tf.reshape(pred, [-1, 19, 19, 5, 85])
+    # 转换成更有意义的值
+    # 相对单元格的位置
+    # N,19,19,5,2
+    box_xy = tf.sigmoid(predictions[:, :, :, :, 0:2])
+    # 相对anchor-box宽高的系数
+    # N,19,19,5,2
+    box_wh = tf.exp(predictions[:, :, :, :, 2:4])
+    # 该位置包含对象的把握
+    # N,19,19,5,1
+    box_conf = tf.sigmoid(predictions[:, :, :, :, 4:5])
+    # 该位置包含的对象关于类别的概率分布
+    # N,19,19,5,80
+    box_class_prob = tf.nn.softmax(predictions[:, :, :, :, 5:85])
+    # 再转换
+    # 19,19,2      生成每个单元格相对整张表格的偏移
+    xy_offset = generateXYOffset()
+    # 1,19,19,1,2  同一个单元格下的所有anchor-box共用偏移
+    xy_offset2 = np.expand_dims(xy_offset, axis=[0, -2])
+    # 加上偏移，便得到相对整张表格的位置
+    box_xy = box_xy + xy_offset2
+    # 位置单位是每个单元格的长度，除整张表格的长度，得出一个比例0～1，相对整张表格的位置，或者说相对整张图的位置
+    # N,19,19,5,2
+    box_xy = box_xy / [19, 19]
+    # 每个单元格的5个锚框的形状，维度为 (5,2)
+    # anchor_box_shape = readAnchorBoxShape('./model_data/yolo_anchors.txt')
+    anchor_box_shape = [[0.57273, 0.677385], [1.87446, 2.06253], [3.33843, 5.47434], [7.88282, 3.52778],
+                        [9.77052, 9.16828]]
+    # 转换层相应的格式
+    fixed_anchor_box_shape = np.reshape(anchor_box_shape, [1, 1, 1, 5, 2])
+    # box_wh是anchor—box宽高的系数，乘积得到真实的宽高，单位为单元格的长度
+    box_wh = box_wh * fixed_anchor_box_shape
+    # 得出一个比例0～1，宽高分别是相对整张表格的宽高
+    box_wh = box_wh / [19, 19]
+    # 转换成边角坐标
+    box_wh_half = box_wh / 2
+    xy_min = box_xy - box_wh_half
+    xy_max = box_xy + box_wh_half
+    # N,19,19,5,4
+    boxes = tf.keras.backend.concatenate([
+        xy_min[:, :, :, :, 1:2],  # y_min
+        xy_min[:, :, :, :, 0:1],  # x_min
+        xy_max[:, :, :, :, 1:2],  # y_max
+        xy_max[:, :, :, :, 0:1],  # x_max
+    ], axis=-1)
+    # 计算出每个类别的得分，   实际上是转换成81类别的概率分布，其中80个是预定义类别，另外一个是不包含对象的概率
+    # N,19,19,5,1 *  N,19,19,5,80 -> N,19,19,5,80
+    box_scores = box_conf * box_class_prob
+    # 得分最高的类别当作该盒子的预测类别
+    # N,19,19,5   包含最高得分的类别
+    box_class = tf.argmax(box_scores, axis=-1)
+    # N,19,19,5   包含某个类别的最高得分
+    box_scores = tf.reduce_max(box_scores, axis=-1)
+
+    # 首先把得分低于0.6的框滤去
+    # N,19,19,5
+    obj_high_prob_mask = box_scores >= 0.6
+    # K,
+    box_high_scores = tf.boolean_mask(box_scores, obj_high_prob_mask)
+    # K,
+    box_high_scores_class = tf.boolean_mask(box_class, obj_high_prob_mask)
+    # N,19,19,5,4     N,19,19,5    ->  K,4
+    high_scores_boxes = tf.boolean_mask(boxes, obj_high_prob_mask)
+    '''
+    1. 因为存在多个框同时检测同一个对象的可能，
+    之所以会产生这个问题，是因为我们在训练网络的时候，对于本不该存在对象的(grid cell,anchor-box)位置,
+    它却输出了一个很吻合(IOU>=0.6)人工标注的框,此时应该计算no-obj loss来惩罚网络,但我们忽略了,原因如下
+
+        1.1 训练网络的时候，人工标注的对象是分配到一对(grid cell,anchor-box)中，然而一个单元格中包含多个anchor-box，
+        实际上如果存在一个目标形状和多个anchor-box都接近(IOU接近)，那么对象具体分配到哪一个anchor-box都是合理的，
+        因此网络在多个位置都输出了预测框也都是合理的，尽管我们标注的位置仍然只会选择一个最优IOU的(grid cell,anchor-box)位置，
+        因此我们可以放宽要求，如果在人工标注位置的附近网络也说存在对象，并且预测框和人工标注框很吻合，那么我们将既不惩罚也不激励网络，保持中立。
+        并且这些多余的预测结果可被非最大值印制算法滤去。这能保证网络具有优秀的识别能力和准确性。
+        另外一方面如果我们要求的输出非常严格，对这些地方进行 no-obj loss惩罚，这样会拥有太多的负例，因为一张图片，
+        网络将预测19*19*5=1805个框，通常人工标注的对象少于100个，那么负例将会是1705个，这可能导致网络最终学会了检测某个位置无对象。
+
+    2. 使用非最大值印制，当多个框同时检测同一个对象时，选择得分最高的框。
+    对不同的类别应用一次非最大值印制算法
+    '''
+    return non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxes)
