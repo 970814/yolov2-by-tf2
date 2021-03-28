@@ -82,7 +82,7 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
 
 ---
 
-上述表达式中`detectors_mask` 前面提到过
+均采用平方差`Loss`，上述表达式中`detectors_mask` 前面提到过
 
 
 1. `object_detections`

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import tensorflow.keras.layers as layers
 
+
 class DarkNet(tf.keras.Model):
 
     def darknetConv2d(self, kernel_size=None, filters=-1, use_bias=False, pre_lay_ch_cnt=-1):
@@ -358,7 +359,3 @@ class DarkNet(tf.keras.Model):
         x = self.activation22(x)
         x = self.conv23(x)
         return x
-
-
-
-

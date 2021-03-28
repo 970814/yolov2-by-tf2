@@ -5,3 +5,4 @@ images/
 *.weights
 ignore/*
 yolov2_weights/*
+font/
