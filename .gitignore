@@ -6,3 +6,4 @@ images/
 ignore/*
 yolov2_weights/*
 saved_model
+train-set
