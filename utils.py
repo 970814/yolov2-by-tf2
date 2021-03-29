@@ -1,5 +1,3 @@
-"""Miscellaneous utility functions."""
-
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw
 import tensorflow as tf
@@ -67,7 +65,13 @@ def show_weights_shape(weights):
         print(np.array(sub_weights).shape)
 
 
-def preprocess_image(img_path, model_image_size):
+def preprocess_image(img_path, model_image_size=(608, 608)):
+    resized_image, image, image_data, image_shape = preprocess_image0(img_path, model_image_size)
+    # 丢弃第一个参数
+    return image, image_data, image_shape
+
+
+def preprocess_image0(img_path, model_image_size):
     image = Image.open(img_path)
 
     # 将图像缩放成固定大小608 608
@@ -80,7 +84,7 @@ def preprocess_image(img_path, model_image_size):
     # 给数据添加一个新维度，数据量维度，得到1*608*608*3，是适配网络的格式
     image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
     # 返回的image shape是(h, w)格式, 图片可能是4通道，但是只考虑rgb通道
-    return image, image_data[:, :, :, 0:3], tuple(reversed(image.size))
+    return resized_image, image, image_data[:, :, :, 0:3], tuple(reversed(image.size))
 
 
 def readAnchorBoxShape(path):
@@ -100,6 +104,21 @@ def generate_colors(class_names):
     random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
     random.seed(None)  # Reset seed to default.
     return colors
+
+
+def write_raw_label(labels, label_file):
+    """
+        labels 是一张图片的人工标签，维度为(K,5)，
+        K为目标数量，5表示x，y，w，h，class位置类别信息
+    """
+    f = open(label_file, 'w')
+    for iv in labels:
+        s = ""
+        for jv in iv:
+            s += str(jv) + ","
+        s += "\n"
+        f.write(s)
+    f.close()
 
 
 def read_class_name(path):
@@ -248,11 +267,11 @@ def convert_filter_and_non_max_suppression(pred):
     # N,19,19,5,2
     box_xy = box_xy / [19, 19]
     # 每个单元格的5个锚框的形状，维度为 (5,2)
-    # anchor_box_shape = readAnchorBoxShape('./model_data/yolo_anchors.txt')
-    anchor_box_shape = [[0.57273, 0.677385], [1.87446, 2.06253], [3.33843, 5.47434], [7.88282, 3.52778],
+    # anchor_box_shapes = readAnchorBoxShape('./model_data/yolo_anchors.txt')
+    anchor_box_shapes = [[0.57273, 0.677385], [1.87446, 2.06253], [3.33843, 5.47434], [7.88282, 3.52778],
                         [9.77052, 9.16828]]
     # 转换层相应的格式
-    fixed_anchor_box_shape = np.reshape(anchor_box_shape, [1, 1, 1, 5, 2])
+    fixed_anchor_box_shape = np.reshape(anchor_box_shapes, [1, 1, 1, 5, 2])
     # box_wh是anchor—box宽高的系数，乘积得到真实的宽高，单位为单元格的长度
     box_wh = box_wh * fixed_anchor_box_shape
     # 得出一个比例0～1，宽高分别是相对整张表格的宽高
@@ -280,6 +299,18 @@ def convert_filter_and_non_max_suppression(pred):
     # 首先把得分低于0.6的框滤去
     # N,19,19,5
     obj_high_prob_mask = box_scores >= 0.6
+    # for v in obj_high_prob_mask.numpy():
+    #     i=-1
+    #     for v2 in v:
+    #         i+=1
+    #         j=-1
+    #         for v3 in v2:
+    #             j+=1
+    #             a=-1
+    #             for v4 in v3:
+    #                 a+=1
+    #                 if v4:
+    #                     print(i,j,a)
     # K,
     box_high_scores = tf.boolean_mask(box_scores, obj_high_prob_mask)
     # K,
@@ -305,6 +336,7 @@ def convert_filter_and_non_max_suppression(pred):
     return non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxes)
 
 
+# 输出的res_boxes
 def detect(image_data, model):
     # image_data 数据维度为 608,608,3
     # 进行向前传播算法
@@ -312,3 +344,31 @@ def detect(image_data, model):
     # 转换数据，过滤低得分框，各个类非最大值印制，得到网络最终的预测框
     res_class, res_score, res_boxes = convert_filter_and_non_max_suppression(pred)
     return res_class, res_score, res_boxes
+
+
+# 载入一个训练样本和label
+def load_one_dataset(file_name,suffix):
+    image, image_data, image_shape = preprocess_image(img_path='train-set/origin/' + file_name + suffix)
+    with open('train-set/origin/labeled-' + file_name + '.txt') as reader:
+        lines = reader.readlines()
+        # K,5的维度
+        label = []
+        for x in lines:
+            line = x.strip()
+            # 忽略空行
+            if len(line) > 0:
+                vs = line.split(',')
+                obj = []
+                for v in vs:
+                    x = v.strip()
+                    if len(x) > 0:
+                        obj.append(float(x))
+                if len(obj) != 5:
+                    raise Exception('每个目标必须包含(x,y,w,h,class)信息')
+                    # 还可以对值进行检测，x,y,w,h必须是 0～1，class只能是0～79，这里不做验证
+                label.append(obj)
+    #   返回(1, 608, 608, 3)和(3, 5)两个张量
+    return image_data, label
+
+
+

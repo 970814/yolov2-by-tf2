@@ -12,9 +12,9 @@ model = tf.saved_model.load('saved_model/yolo_model_file')
 # 80个类别的名称
 class_name = read_class_name('./model_data/coco_classes_chinese.txt')
 # 图片名称
-file = 'img_2.png'
+file = 'dog.jpg'
 # 图片放缩成608,608,像素值归一化
-image, image_data, image_shape = preprocess_image(img_path='images/' + file, model_image_size=(608, 608))
+image, image_data, image_shape = preprocess_image(img_path='images/' + file)
 # 进行目标检测算法
 res_class, res_score, res_boxes = detect(image_data, model)
 # image_shape 为原图大小高宽格式，

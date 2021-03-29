@@ -26,7 +26,7 @@ for f in os.listdir(root_path):
     nf = os.path.join(root_path, f)
     if os.path.isfile(nf):
         # 图片放缩成608,608,像素值归一化
-        image, image_data, image_shape = preprocess_image(img_path=nf, model_image_size=(608, 608))
+        image, image_data, image_shape = preprocess_image(img_path=nf)
         # 进行目标检测算法
         res_class, res_score, res_boxes = detect(image_data, model)
         # image_shape 为原图大小高宽格式，
