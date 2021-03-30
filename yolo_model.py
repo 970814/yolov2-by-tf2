@@ -9,7 +9,7 @@ class DarkNet(tf.keras.Model):
         # 记录每个卷积核参数的shape
         self.weight_shapes.append((kernel_size[0], kernel_size[1], pre_lay_ch_cnt, filters))
         return layers.Conv2D(
-            kernel_initializer=None,
+            kernel_initializer=tf.zeros_initializer,
             kernel_size=kernel_size,
             filters=filters,
             padding='same',

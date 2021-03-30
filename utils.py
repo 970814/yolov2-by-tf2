@@ -269,7 +269,7 @@ def convert_filter_and_non_max_suppression(pred):
     # 每个单元格的5个锚框的形状，维度为 (5,2)
     # anchor_box_shapes = readAnchorBoxShape('./model_data/yolo_anchors.txt')
     anchor_box_shapes = [[0.57273, 0.677385], [1.87446, 2.06253], [3.33843, 5.47434], [7.88282, 3.52778],
-                        [9.77052, 9.16828]]
+                         [9.77052, 9.16828]]
     # 转换层相应的格式
     fixed_anchor_box_shape = np.reshape(anchor_box_shapes, [1, 1, 1, 5, 2])
     # box_wh是anchor—box宽高的系数，乘积得到真实的宽高，单位为单元格的长度
@@ -326,7 +326,7 @@ def convert_filter_and_non_max_suppression(pred):
         实际上如果存在一个目标形状和多个anchor-box都接近(IOU接近)，那么对象具体分配到哪一个anchor-box都是合理的，
         因此网络在多个位置都输出了预测框也都是合理的，尽管我们标注的位置仍然只会选择一个最优IOU的(grid cell,anchor-box)位置，
         因此我们可以放宽要求，如果在人工标注位置的附近网络也说存在对象，并且预测框和人工标注框很吻合，那么我们将既不惩罚也不激励网络，保持中立。
-        并且这些多余的预测结果可被非最大值印制算法滤去。这能保证网络具有优秀的识别能力和准确性。
+        并且这些多余的预测结果可被非最大值印制算法滤去。
         另外一方面如果我们要求的输出非常严格，对这些地方进行 no-obj loss惩罚，这样会拥有太多的负例，因为一张图片，
         网络将预测19*19*5=1805个框，通常人工标注的对象少于100个，那么负例将会是1705个，这可能导致网络最终学会了检测某个位置无对象。
 
@@ -347,7 +347,7 @@ def detect(image_data, model):
 
 
 # 载入一个训练样本和label
-def load_one_dataset(file_name,suffix):
+def load_one_dataset(file_name, suffix):
     image, image_data, image_shape = preprocess_image(img_path='train-set/origin/' + file_name + suffix)
     with open('train-set/origin/labeled-' + file_name + '.txt') as reader:
         lines = reader.readlines()
@@ -371,4 +371,10 @@ def load_one_dataset(file_name,suffix):
     return image_data, label
 
 
+a = np.random.randint(0, 10, size=[2, 3, 2])
 
+# A = tf.Variable(a)
+# print(A)
+#
+# B = tf.one_hot(A, 10)
+# print(B)
