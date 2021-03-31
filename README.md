@@ -23,8 +23,8 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时目标检测系统_
 #### 环境要求
 1. Anconda        2020.11
 2. Conda          4.9.2
-3. python         3.7.10
-4. tensorflow     2.0.0
+3. Python         3.7.10
+4. Tensorflow     2.0.0
 
 ---
 
