@@ -204,5 +204,15 @@ _注意网络输出值并没有经过上面所描述的映射，也就是说我�
 所以接下来我们对各个类使用非最大值印制算法过滤，得出最终的目标检测结果。这部分原理和实现可以
 参考`utils.py`文件中的`convert_filter_and_non_max_suppression`函数
 
+---
 
+### 参考资料
+
+- [YAD2K](https://github.com/allanzelener/YAD2K)
+- [简单粗暴TensorFlow2](https://tf.wiki/zh_hans/basic/models.html)
+- [吴恩达深度学习YOLO算法](https://www.bilibili.com/video/BV1F4411y7o7?p=31)
+- [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/chap1.html) 
+- [Final Layers and Loss Function](https://medium.com/oracledevs/final-layers-and-loss-functions-of-single-stage-detectors-part-1-4abbfa9aa71c)
+- [YOLO Loss 细节](https://www.jianshu.com/p/e6582dfa6bb3?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
+- [BatchNormalization 踩坑经历](https://zhuanlan.zhihu.com/p/64310188)
 
