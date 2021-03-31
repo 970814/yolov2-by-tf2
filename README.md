@@ -215,5 +215,6 @@ _注意网络输出值并没有经过上面所描述的映射，也就是说我�
 - [YOLO9000: Better, Faster, Stronger](https://arxiv.org/pdf/1612.08242.pdf)
 - [Final Layers and Loss Function](https://medium.com/oracledevs/final-layers-and-loss-functions-of-single-stage-detectors-part-1-4abbfa9aa71c)
 - [YOLO Loss 细节](https://www.jianshu.com/p/e6582dfa6bb3?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
+- [Yolov2 损失函数细节](https://zhuanlan.zhihu.com/p/56079893)
 - [BatchNormalization 踩坑经历](https://zhuanlan.zhihu.com/p/64310188)
 
