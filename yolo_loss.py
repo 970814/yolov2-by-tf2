@@ -10,7 +10,6 @@ def loss_function(predictions, labels):
     """
     if len(predictions) != len(labels):
         raise Exception("predictions和labels的数量不一致")
-
     # 首先将predictions转换成(Batch, 19, 19, 5, 85)
     predictions = tf.reshape(predictions, [-1, 19, 19, 5, 85])
     # 样本数量
@@ -19,7 +18,6 @@ def loss_function(predictions, labels):
     为了计算loss，需要将labels转换成(Batch, 19, 19, 5, 85)维度
     创建bool 类型的 (Batch, 19, 19, 5) detectors_mask，为True的位置表示存在对象，对象的(x,y,w,h,class)存储在相应labels2的位置，
     '''
-
     # 每个单元格有5个锚框5个shape，维度为 (5,2)
     # anchor_box_shape = readAnchorBoxShape('./model_data/yolo_anchors.txt')
     # 单位也是单元格大小 维度为(5,2)
@@ -141,11 +139,10 @@ def loss_function(predictions, labels):
 
     # 总loss为 识别loss+分类loss+定位loss , 维度为 (Batch, 19, 19, 5)，包含了每个单元格每个anchor-box的loss
     total_loss = confidence_loss + classification_loss + coordinate_loss
-    print(tf.reduce_sum(total_loss, axis=[-1, -2, -3]))
+    # print(tf.reduce_sum(total_loss, axis=[-1, -2, -3]))
 
     # 计算所有样本的平均loss
     loss = 0.5 / m * tf.reduce_sum(total_loss)
-    print(loss)
     return loss
 
 

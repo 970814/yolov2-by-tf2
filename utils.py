@@ -231,10 +231,12 @@ def non_max_suppression(box_high_scores_class, box_high_scores, high_scores_boxe
         res_score.append(classified_res_score)
         res_boxes.append(classified_res_boxes)
         res_class.append(classified_res_class)
-
-    res_score = tf.keras.backend.concatenate(res_score, axis=0)
-    res_boxes = tf.keras.backend.concatenate(res_boxes, axis=0)
-    res_class = tf.keras.backend.concatenate(res_class, axis=0)
+    if len(res_score) == 0:
+        print('未检测到任何目标')
+    else:
+        res_score = tf.keras.backend.concatenate(res_score, axis=0)
+        res_boxes = tf.keras.backend.concatenate(res_boxes, axis=0)
+        res_class = tf.keras.backend.concatenate(res_class, axis=0)
     return res_class, res_score, res_boxes
 
 
@@ -299,18 +301,6 @@ def convert_filter_and_non_max_suppression(pred):
     # 首先把得分低于0.6的框滤去
     # N,19,19,5
     obj_high_prob_mask = box_scores >= 0.6
-    # for v in obj_high_prob_mask.numpy():
-    #     i=-1
-    #     for v2 in v:
-    #         i+=1
-    #         j=-1
-    #         for v3 in v2:
-    #             j+=1
-    #             a=-1
-    #             for v4 in v3:
-    #                 a+=1
-    #                 if v4:
-    #                     print(i,j,a)
     # K,
     box_high_scores = tf.boolean_mask(box_scores, obj_high_prob_mask)
     # K,
@@ -368,13 +358,7 @@ def load_one_dataset(file_name, suffix):
                     # 还可以对值进行检测，x,y,w,h必须是 0～1，class只能是0～79，这里不做验证
                 label.append(obj)
     #   返回(1, 608, 608, 3)和(3, 5)两个张量
-    return image_data, label
+    return image_data, label, image, image_shape
 
 
-a = np.random.randint(0, 10, size=[2, 3, 2])
 
-# A = tf.Variable(a)
-# print(A)
-#
-# B = tf.one_hot(A, 10)
-# print(B)

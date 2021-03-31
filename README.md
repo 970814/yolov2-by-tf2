@@ -41,7 +41,7 @@ python test_tect.py
 python save_model.py
 ```
 
-3. 使用保存yolo_v2模型检测图片
+3. 使用保存的yolo_v2模型检测图片
 ```
 python load_model_and_test_detect.py
 ```
