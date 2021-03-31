@@ -1,8 +1,7 @@
-from yolo_model import DarkNet
 import tensorflow as tf
 import numpy as np
-from utils import load_one_dataset
-from yolo_loss import loss_function
+from core.utils import load_one_dataset
+from core.yolo_loss import loss_function
 import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -14,7 +13,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 # print(model.summary())
 
 # 加载模型, 使用已经训练好的模型计算loss 会得到一个非常低的loss
-model = tf.saved_model.load('saved_model/overfit_model-1000e-2')
+model = tf.saved_model.load('saved_model/overfit_model-1000e')
 # 载入训练集合
 # (1, 608, 608, 3) 和 (3, 5)
 dog_image_data, dog_label, dog_image, dog_image_shape = load_one_dataset('dog', '.jpg')

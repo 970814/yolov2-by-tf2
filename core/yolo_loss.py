@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from utils import generateXYOffset
+from core.utils import generateXYOffset
 
 
 def loss_function(predictions, labels):

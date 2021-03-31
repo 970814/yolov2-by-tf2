@@ -1,5 +1,5 @@
-from yolo_model import DarkNet
-from utils import parse_yolo_v2_model_weights
+from core.yolo_model import DarkNet
+from core.utils import parse_yolo_v2_model_weights
 import tensorflow as tf
 import os
 

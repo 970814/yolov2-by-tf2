@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils import preprocess_image, \
+from core.utils import preprocess_image, \
     draw_boxes, read_class_name, generate_colors, detect
 import numpy as np
 import matplotlib.pyplot as plt
