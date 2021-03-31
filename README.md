@@ -5,11 +5,55 @@
 
 使用 **tensorflow2.0** 实现的 **YOLO**_(you only look once)_ v2算法
 
-_[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时对象检测系统_
+_[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时目标检测系统_
+
+该项目实现了该系统的全部细节，包括模型构建、Loss函数、以及如何从零训练一个目标检测系统，以便扩展至训练自定义的目标检测系统。
 
 ---
 
 ## 算法效果
+
+检测结果
+![detection](https://user-images.githubusercontent.com/19931702/113077409-af632680-9203-11eb-9018-90588d13db4f.png)
+
+---
+
+## 如何使用
+
+#### 环境要求
+1. Anconda        2020.11
+2. Conda          4.9.2
+3. python         3.7.10
+4. tensorflow     2.0.0
+
+---
+
+1. 检测图片中的目标
+
+```
+python test_tect.py
+```
+
+2. 保存yolo_v2模型
+
+```
+python save_model.py
+```
+
+3. 使用保存yolo_v2模型检测图片
+```
+python load_model_and_test_detect.py
+```
+
+4. 从零训练网络，在2个样本的训练集上训练一个过拟合的模型
+```
+python train_model_overfit.py
+```
+
+5. 使用前面训练的过拟合模型进行目标检测
+```
+python load_overfit_model_and_test_detect.py
+```
 
 ## 算法原理
 
