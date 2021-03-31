@@ -15,7 +15,7 @@ _[YOLO](https://pjreddie.com/darknet/yolo/) 是一个实时目标检测系统_
 
 检测结果
 
-<img alt="" src="https://user-images.githubusercontent.com/19931702/113087930-31107f80-9217-11eb-89ae-626f99f476f9.png">
+<img alt="" src="https://user-images.githubusercontent.com/19931702/113099260-447a1580-922c-11eb-8d5a-8707fb75b16e.png">
 
 ---
 
