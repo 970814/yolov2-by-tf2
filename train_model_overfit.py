@@ -42,7 +42,7 @@ labels = [dog_label, car2_label]
 # 整个样本的迭代次数
 num_epoths = 1000
 # 学习速率
-learning_rate = 0.005
+learning_rate = 0.002
 # 设置梯度更新器
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 s0 = time.time()
@@ -76,7 +76,7 @@ print('共迭代', num_epoths, '次, 总耗时: ', s3 - s0, 's, 最终Loss: ', f
       inference_loss.numpy())
 
 # 保存过拟合模型
-tf.saved_model.save(model, 'saved_model/overfit_model-1000e-2')
+tf.saved_model.save(model, 'saved_model/overfit_model-1000e-3')
 
 
 # 共迭代 1000 次, 总耗时:  10817.50330901146 s, 最终Loss:  0.0010638987 , 推断模式下Loss:  0.0068158614
