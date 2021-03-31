@@ -42,7 +42,7 @@ labels = [dog_label, car2_label]
 # 整个样本的迭代次数
 num_epoths = 1000
 # 学习速率
-learning_rate = 0.002
+learning_rate = 0.001
 # 设置梯度更新器
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 s0 = time.time()

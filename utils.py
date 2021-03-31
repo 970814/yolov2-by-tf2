@@ -298,9 +298,9 @@ def convert_filter_and_non_max_suppression(pred):
     # N,19,19,5   包含某个类别的最高得分
     box_scores = tf.reduce_max(box_scores, axis=-1)
 
-    # 首先把得分低于0.6的框滤去
+    # 首先把得分低于0.6的框滤去, 现在改成0.57，效果会更好
     # N,19,19,5
-    obj_high_prob_mask = box_scores >= 0.6
+    obj_high_prob_mask = box_scores >= 0.57
     # K,
     box_high_scores = tf.boolean_mask(box_scores, obj_high_prob_mask)
     # K,
